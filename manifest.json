@@ -1,0 +1,6 @@
+{
+  "name": "chirimen-piano",
+  "short_name": "chirimen-piano",
+  "start_url": "/",
+  "display": "standalone"
+}
