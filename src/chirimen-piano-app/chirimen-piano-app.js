@@ -8,6 +8,10 @@ import '@polymer/iron-icons/av-icons.js';
 import '@polymer/iron-icon/iron-icon.js';
 import './cp-player.js';
 
+import './web-i2c.js';
+import './grove-touch.js';
+import './grove-gesture.js';
+
 /**
  * @customElement
  * @polymer
@@ -51,25 +55,30 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
 
       <div class="control key raised" on-tap="prev">
         <iron-icon icon="av:fast-rewind"></iron-icon>
-        <paper-ripple class="circle" recenters></paper-ripple>
+        <paper-ripple class="prev circle" recenters></paper-ripple>
       </div>
 
       <template is="dom-repeat" items="[[_fromPage(page)]]">
         <div class="key raised" on-tap="play">
           <div class="center">[[item.name]]</div>
-          <paper-ripple class="circle" recenters></paper-ripple>
+          <paper-ripple class="keyboard circle" recenters></paper-ripple>
         </div>
       </template>
 
       <div class="control key raised" on-tap="next">
         <iron-icon icon="av:fast-forward"></iron-icon>
-        <paper-ripple class="circle" recenters></paper-ripple>
+        <paper-ripple class="next circle" recenters></paper-ripple>
       </div>
 
       <div>
         <paper-slider value="{{volume}}"></paper-slider>
       </div>
       <cp-player id="player" hz="[[hz]]" volume="[[volume]]"></cp-player>
+
+      <web-i2c port="{{_i2cPort}}">
+        <grove-touch port="[[_i2cPort]]" slave-address="0x5a" channel="{{_touches}}"></grove-touch>
+        <grove-gesture port="[[_i2cPort]]" slave-address="0x73" status="{{_gesture}}"></grove-gesture>
+      </web-i2c>
     `;
   }
   static get properties() {
@@ -77,6 +86,14 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
       hz: Number,
       volume: Number,
       page: Number,
+      _touches: {
+        type: Array,
+        observer: '_touchChanged'
+      },
+      _gesture: {
+        type: String,
+        observer: '_gestureChanged'
+      }
     };
   }
   // page の範囲は -2 < page < 3 で、3オクターブまで
@@ -107,6 +124,37 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
     super.ready();
     this.page = 0;
     this.volume = 50;
+  }
+  _touchChanged() {
+    console.log("タッチ", JSON.stringify(this._touches));
+    const keyboard = this.shadowRoot.querySelectorAll('paper-ripple.keyboard');
+
+    this._touches.forEach((value, index) => {
+      if (value) {
+        keyboard[index].simulatedRipple();
+        this.hz = this._fromPage(this.page)[index].hz;
+        this.$.player.play();
+      }
+    });
+  }
+  _gestureChanged() {
+    console.log("ジェスチャー", this._gesture);
+    switch(this._gesture) {
+      case 'up':
+        this.shadowRoot.querySelector('paper-ripple.next').simulatedRipple();
+        this.next();
+        break;
+      case 'down':
+        this.shadowRoot.querySelector('paper-ripple.prev').simulatedRipple();
+        this.prev();
+        break;
+      case 'forward':
+        this.volume -= 10;
+        break;
+      case 'back':
+        this.volume += 10;
+        break;
+    }
   }
 }
 
