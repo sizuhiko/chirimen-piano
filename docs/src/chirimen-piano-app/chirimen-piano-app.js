@@ -5,10 +5,10 @@ import "../../node_modules/@polymer/paper-ripple/paper-ripple.js";
 import "../../node_modules/@polymer/paper-slider/paper-slider.js";
 import "../../node_modules/@polymer/iron-icons/av-icons.js";
 import "../../node_modules/@polymer/iron-icon/iron-icon.js";
-import './cp-player.js';
-import './web-i2c.js';
-import './grove-touch.js';
-import './grove-gesture.js';
+import './cp-player.js'; //import './web-i2c.js';
+//import './grove-touch.js';
+//import './grove-gesture.js';
+
 /**
  * @customElement
  * @polymer
@@ -42,7 +42,7 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
         }
         .key.pad {
           color: white;
-          background-color: red;
+          background-color: tomato;
         }
         .key.pad + .key.pad {
           color: black;

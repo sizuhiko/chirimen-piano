@@ -8,9 +8,9 @@ import '@polymer/iron-icons/av-icons.js';
 import '@polymer/iron-icon/iron-icon.js';
 import './cp-player.js';
 
-import './web-i2c.js';
-import './grove-touch.js';
-import './grove-gesture.js';
+//import './web-i2c.js';
+//import './grove-touch.js';
+//import './grove-gesture.js';
 
 /**
  * @customElement
@@ -44,7 +44,7 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
         }
         .key.pad {
           color: white;
-          background-color: red;
+          background-color: tomato;
         }
         .key.pad + .key.pad {
           color: black;
