@@ -5,10 +5,10 @@ import "../../node_modules/@polymer/paper-ripple/paper-ripple.js";
 import "../../node_modules/@polymer/paper-slider/paper-slider.js";
 import "../../node_modules/@polymer/iron-icons/av-icons.js";
 import "../../node_modules/@polymer/iron-icon/iron-icon.js";
-import './cp-player.js';
-import './web-i2c.js';
-import './grove-touch.js';
-import './grove-gesture.js';
+import './cp-player.js'; //import './web-i2c.js';
+//import './grove-touch.js';
+//import './grove-gesture.js';
+
 /**
  * @customElement
  * @polymer
@@ -40,6 +40,23 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
         .control {
           background-color: #4285f4;
         }
+        .key.pad {
+          color: white;
+          background-color: red;
+        }
+        .key.pad + .key.pad {
+          color: black;
+          background-color: white;
+        }
+        .key.pad + .key.pad + .key.pad {
+          color: black;
+          background-color: yellow;
+        }
+        .key.pad + .key.pad + .key.pad + .key.pad {
+          color: white;
+          background-color: limegreen;
+        }
+
         .control > iron-icon {
           margin: 16px;
         }
@@ -57,7 +74,7 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
       </div>
 
       <template is="dom-repeat" items="[[_fromPage(page)]]">
-        <div class="key raised" on-tap="play">
+        <div class="key pad raised" on-tap="play">
           <div class="center">[[item.name]]</div>
           <paper-ripple class="keyboard circle" recenters></paper-ripple>
         </div>
