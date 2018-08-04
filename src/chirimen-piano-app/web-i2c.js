@@ -1,4 +1,4 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 
 /**
  * WebI2C
@@ -13,6 +13,28 @@ import {PolymerElement} from '@polymer/polymer/polymer-element.js';
  * @polymer
  */
 class WebI2C extends PolymerElement {
+  static get template() {
+    return html`
+      <style>
+        :host {
+          display: block;
+        }
+        .message {
+          display: none;
+        }
+        :host([disable]) .message {
+          display: block;
+          font-size: 8px;
+          margin: 2em 4em;
+          color: orange;
+        }
+      </style>
+
+      <div class="message">
+        このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
+      </div>
+    `;
+  }  
   static get properties() {
     return {
       /**
@@ -29,6 +51,10 @@ class WebI2C extends PolymerElement {
         type: Number,
         value: 1,
       },
+      disable: {
+        type: Boolean,
+        reflectToAttribute: true,
+      }
     };
   }
   ready() {
@@ -36,7 +62,10 @@ class WebI2C extends PolymerElement {
     navigator.requestI2CAccess().then(function(i2cAccess) {
       this.port = i2cAccess.ports.get(1);
       console.log('WebI2C init');
-    }.bind(this)).catch(e=> console.error('error', e));
+    }.bind(this)).catch(e => {
+      console.log('This will not CHIRIMEN. No problem play music, ENJOY!', e);
+      this.disable = true;
+    });
   }
 }
 
