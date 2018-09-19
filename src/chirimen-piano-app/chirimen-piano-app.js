@@ -95,6 +95,9 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
       <web-i2c port="{{_i2cPort}}">
         <grove-touch port="[[_i2cPort]]" slave-address="0x5a" channel="{{_touches}}"></grove-touch>
         <grove-gesture port="[[_i2cPort]]" slave-address="0x73" status="{{_gesture}}"></grove-gesture>
+        <div slot="no-web-i2c">
+          このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
+        </div>
       </web-i2c>
     `;
   }

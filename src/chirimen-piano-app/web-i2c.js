@@ -6,7 +6,10 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
  * @example 
  * 
  * <web-i2c port="{{i2cPort}}">
- *  <grove-touch port="[[i2cPort]]"></grove-touch>
+ *   <grove-touch port="[[i2cPort]]"></grove-touch>
+ *   <div slot="no-web-i2c">
+ *     このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
+ *   </div>
  * </web-i2c>
  * 
  * @customElement
@@ -31,7 +34,7 @@ class WebI2C extends PolymerElement {
       </style>
 
       <div class="message">
-        このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
+        <slot name="no-web-i2c"></slot>
       </div>
     `;
   }  
@@ -60,10 +63,10 @@ class WebI2C extends PolymerElement {
   ready() {
     super.ready();
     navigator.requestI2CAccess().then(function(i2cAccess) {
-      this.port = i2cAccess.ports.get(1);
+      this.port = i2cAccess.ports.get(this.i2c);
       console.log('WebI2C init');
     }.bind(this)).catch(e => {
-      console.log('This will not CHIRIMEN. No problem play music, ENJOY!', e);
+      console.log('This will not CHIRIMEN.', e);
       this.disable = true;
     });
   }
