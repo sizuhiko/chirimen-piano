@@ -5,8 +5,8 @@ import {WebI2cSensorElement} from './web-i2c-sensor-element.js';
  * 
  * @example 
  * 
- * <web-i2c port="{{i2cPort}}">
- *  <grove-touch port="[[_i2cPort]]" slave-address="0x5a" value="{{_touches}}"></grove-touch>
+ * <web-i2c>
+ *  <grove-touch slave-address="0x5a" value="{{_touches}}"></grove-touch>
  * </web-i2c>
  * 
  * @customElement

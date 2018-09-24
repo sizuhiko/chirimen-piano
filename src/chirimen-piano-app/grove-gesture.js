@@ -63,8 +63,8 @@ const INIT_REGISTER_ARRAY = [ // Initial Gesture
  * 
  * @example 
  * 
- * <web-i2c port="{{i2cPort}}">
- *  <grove-gesture port="[[_i2cPort]]" slave-address="0x73" value="{{_gesture}}"></grove-gesture>
+ * <web-i2c>
+ *  <grove-gesture slave-address="0x73" value="{{_gesture}}"></grove-gesture>
  * </web-i2c>
  * 
  * @customElement
