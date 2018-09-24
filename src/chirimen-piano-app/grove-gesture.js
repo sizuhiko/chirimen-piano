@@ -1,4 +1,4 @@
-import {PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {WebI2cSensorElement} from './web-i2c-sensor-element.js';
 
 const GES_RIGHT_FLAG            = (1 << 0);
 const GES_LEFT_FLAG             = (1 << 1);
@@ -64,110 +64,64 @@ const INIT_REGISTER_ARRAY = [ // Initial Gesture
  * @example 
  * 
  * <web-i2c port="{{i2cPort}}">
- *  <grove-gesture port="[[_i2cPort]]" slave-address="0x73" status="{{_gesture}}"></grove-gesture>
+ *  <grove-gesture port="[[_i2cPort]]" slave-address="0x73" value="{{_gesture}}"></grove-gesture>
  * </web-i2c>
  * 
  * @customElement
  * @polymer
  */
-class GroveGesture extends PolymerElement {
-  static get properties() {
-    return {
-      /**
-       * I2Cポートオブジェクト
-       */
-      port: Object,
-      /**
-       * I2Cスレーブアドレス
-       */
-      slaveAddress: Number,
-      /**
-       * ジェスチャーの状態
-       * forward/back, up/left/right/down, clockwise, count clockwise
-       */
-      status: {
-        type: String,
-        notify: true,
-      },
-      /**
-       * ジェスチャーの値を読み取る間隔（ミリ秒）
-       */
-      interval: {
-        type: Number,
-        value: 1000
-      }
-    };
-  }
-  static get observers() {
-    return [
-      'init(port, slaveAddress)'
-    ];
-  }
-  init() {
-    if (!this.port || !this.slaveAddress) return;
+class GroveGesture extends WebI2cSensorElement {
+  async init() {
+    this._autoRead = true;
+    await this._i2cSlave.write8(0xef,0);  // BankSelect=0
+    await this._i2cSlave.write8(0xef,0);  // BankSelect=0
 
-    this.port.open(this.slaveAddress).then(async (i2cSlave)=>{
-      await i2cSlave.write8(0xef,0);  // BankSelect=0
-      await i2cSlave.write8(0xef,0);  // BankSelect=0
-
-      var v0 = await i2cSlave.read8(0,true);
-      var v1 = await i2cSlave.read8(1,true);
-      if((v0 != 0x20)||(v1 != 0x76)){
-        console.error("gesture read error!", [v0, v1]);
-      }else{
-        for(var cnt = 0;cnt < INIT_REGISTER_ARRAY.length;cnt ++){
-          //          console.log("thread."+cnt);
-          await i2cSlave.write8(INIT_REGISTER_ARRAY[cnt][0], INIT_REGISTER_ARRAY[cnt][1]);
-        }
-        await i2cSlave.write8(0xef,0);  // BankSelect=0
-        //          console.log("thread2 end");
-        this.waitAndRead(i2cSlave);
+    var v0 = await this._i2cSlave.read8(0,true);
+    var v1 = await this._i2cSlave.read8(1,true);
+    if((v0 != 0x20)||(v1 != 0x76)){
+      console.error("gesture read error!", [v0, v1]);
+    }else{
+      for(var cnt = 0;cnt < INIT_REGISTER_ARRAY.length;cnt ++){
+        //          console.log("thread."+cnt);
+        await this._i2cSlave.write8(INIT_REGISTER_ARRAY[cnt][0], INIT_REGISTER_ARRAY[cnt][1]);
       }
-    });
+      await this._i2cSlave.write8(0xef,0);  // BankSelect=0
+    }
   }
 
-  waitAndRead(i2cSlave) {
-    setInterval(()=>{
-      if(i2cSlave == null){
-        console.error("i2cSlave Address does'nt yet open!");
-      }else{
-        i2cSlave.read8(0x43).then((v)=>{
-          var res;
-          switch(v){
-            case GES_RIGHT_FLAG:
-              res = "right";
-              break;
-            case GES_LEFT_FLAG:
-              res = "left";
-              break;
-            case GES_UP_FLAG:
-              res = "up";
-              break;
-            case GES_DOWN_FLAG:
-              res = "down";
-              break;
-            case GES_FORWARD_FLAG:
-              res = "forward";
-              break;
-            case GES_BACKWARD_FLAG:
-              res = "back";
-              break;
-            case GES_CLOCKWISE_FLAG:
-              res = "clockwise";
-              break;
-            case GES_COUNT_CLOCKWISE_FLAG:
-              res = "count clockwise";
-              break;
-            default:
-              res = "----";
-              break;
-          } // switch(v)
-          this.set('status', res);
-        }).catch(function(e) {
-          console.error(e);
-        });
-      }
-    }, this.interval);
+  async read() {
+    const value = await this._i2cSlave.read8(0x43);
+    var res;
+    switch(value){
+      case GES_RIGHT_FLAG:
+        res = "right";
+        break;
+      case GES_LEFT_FLAG:
+        res = "left";
+        break;
+      case GES_UP_FLAG:
+        res = "up";
+        break;
+      case GES_DOWN_FLAG:
+        res = "down";
+        break;
+      case GES_FORWARD_FLAG:
+        res = "forward";
+        break;
+      case GES_BACKWARD_FLAG:
+        res = "back";
+        break;
+      case GES_CLOCKWISE_FLAG:
+        res = "clockwise";
+        break;
+      case GES_COUNT_CLOCKWISE_FLAG:
+        res = "count clockwise";
+        break;
+      default:
+        res = "----";
+        break;
+    }
+    this._setValue(res);
   }
 }
 

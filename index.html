@@ -14,8 +14,29 @@
     <script src="src/polyfill/polyfill.js"></script>
 
     <script type="module" src="src/chirimen-piano-app/chirimen-piano-app.js"></script>
+
+    <script type="module" src="src/chirimen-piano-app/web-i2c.js"></script>
+    <script type="module" src="src/chirimen-piano-app/grove-gesture.js"></script>
+    <script type="module" src="src/chirimen-piano-app/grove-touch.js"></script>
+
   </head>
   <body>
     <chirimen-piano-app></chirimen-piano-app>
+    <web-i2c>
+      <grove-touch slave-address="0x5a"></grove-touch>
+      <grove-gesture slave-address="0x73"></grove-gesture>
+      <div slot="no-web-i2c">
+        このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
+      </div>
+    </web-i2c>
+    
+    <script>
+      document.querySelector('grove-touch').addEventListener('value-changed', e => {
+        document.querySelector('chirimen-piano-app').touchChanged(e.detail.value);
+      });
+      document.querySelector('grove-gesture').addEventListener('value-changed', e => {
+        document.querySelector('chirimen-piano-app').gestureChanged(e.detail.value);
+      });
+    </script>
   </body>
 </html>

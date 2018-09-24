@@ -1,12 +1,13 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {WebI2cSensorElement} from './web-i2c-sensor-element.js';
 
 /**
  * WebI2C
  * 
  * @example 
  * 
- * <web-i2c port="{{i2cPort}}">
- *   <grove-touch port="[[i2cPort]]"></grove-touch>
+ * <web-i2c>
+ *   <grove-touch></grove-touch>
  *   <div slot="no-web-i2c">
  *     このデバイスはCHIRIMENではありませんが、ピアノ演奏はお楽しみいただけます。
  *   </div>
@@ -36,17 +37,11 @@ class WebI2C extends PolymerElement {
       <div class="message">
         <slot name="no-web-i2c"></slot>
       </div>
+      <slot id="sensors"></slot>
     `;
   }  
   static get properties() {
     return {
-      /**
-       * ポートオブジェクト。I2C制御機器へ渡す値
-       */
-      port: {
-        type: Object,
-        notify: true,
-      },
       /**
        * I2Cポート番号。CHIRIMEN for Raspberry Piで利用可能なものは1だけなので、その場合は省略可能
        */
@@ -63,11 +58,22 @@ class WebI2C extends PolymerElement {
   ready() {
     super.ready();
     navigator.requestI2CAccess().then(function(i2cAccess) {
-      this.port = i2cAccess.ports.get(this.i2c);
+      const port = i2cAccess.ports.get(this.i2c);
       console.log('WebI2C init');
+      this._bindPort(port);
     }.bind(this)).catch(e => {
       console.log('This will not CHIRIMEN.', e);
       this.disable = true;
+      this._bindPort(null);
+    });
+  }
+  _bindPort(port) {
+    const slot = this.shadowRoot.querySelector('#sensors');
+    slot.assignedNodes().forEach(node => {
+      if(node instanceof HTMLElement) {
+        console.log('WebI2C port assigned to ' + node.nodeName.toLowerCase());
+        node.port = port;
+      }
     });
   }
 }
