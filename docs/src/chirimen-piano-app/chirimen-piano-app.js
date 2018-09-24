@@ -6,9 +6,6 @@ import "../../node_modules/@polymer/paper-slider/paper-slider.js";
 import "../../node_modules/@polymer/iron-icons/av-icons.js";
 import "../../node_modules/@polymer/iron-icon/iron-icon.js";
 import './cp-player.js';
-import './web-i2c.js';
-import './grove-touch.js';
-import './grove-gesture.js';
 /**
  * @customElement
  * @polymer
@@ -90,10 +87,6 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
       </div>
       <cp-player id="player" hz="[[hz]]" volume="[[volume]]"></cp-player>
 
-      <web-i2c port="{{_i2cPort}}">
-        <grove-touch port="[[_i2cPort]]" slave-address="0x5a" channel="{{_touches}}"></grove-touch>
-        <grove-gesture port="[[_i2cPort]]" slave-address="0x73" status="{{_gesture}}"></grove-gesture>
-      </web-i2c>
     `;
   }
 
@@ -101,15 +94,7 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
     return {
       hz: Number,
       volume: Number,
-      page: Number,
-      _touches: {
-        type: Array,
-        observer: '_touchChanged'
-      },
-      _gesture: {
-        type: String,
-        observer: '_gestureChanged'
-      }
+      page: Number
     };
   } // page の範囲は -2 < page < 3 で、3オクターブまで
 
@@ -215,11 +200,10 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
     this.volume = 50;
   }
 
-  _touchChanged() {
-    console.log("タッチ", JSON.stringify(this._touches));
+  touchChanged(touches) {
+    console.log("タッチ", JSON.stringify(touches));
     const keyboard = this.shadowRoot.querySelectorAll('paper-ripple.keyboard');
-
-    this._touches.forEach((value, index) => {
+    touches.forEach((value, index) => {
       if (value) {
         keyboard[index].simulatedRipple();
         this.hz = this._fromPage(this.page)[index].hz;
@@ -228,10 +212,10 @@ class ChirimenPianoApp extends GestureEventListeners(PolymerElement) {
     });
   }
 
-  _gestureChanged() {
-    console.log("ジェスチャー", this._gesture);
+  gestureChanged(gesture) {
+    console.log("ジェスチャー", gesture);
 
-    switch (this._gesture) {
+    switch (gesture) {
       case 'up':
         this.shadowRoot.querySelector('paper-ripple.next').simulatedRipple();
         this.next();
