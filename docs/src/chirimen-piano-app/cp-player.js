@@ -32,8 +32,16 @@ class CpPlayer extends PolymerElement {
 
   ready() {
     super.ready();
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    this._audioCtx = new AudioContext();
+    const AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+    this._audioCtx = new AudioContextFunc();
+    const eventName = typeof document.ontouchend !== 'undefined' ? 'touchend' : 'mouseup';
+    document.addEventListener(eventName, this._audioCtx);
+
+    function initAudioContext() {
+      document.removeEventListener(eventName, this._audioCtx); // wake up AudioContext
+
+      ctx.resume();
+    }
   }
 
 }
